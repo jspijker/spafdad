@@ -1,0 +1,112 @@
+---
+title: "spafdad"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{spafdad}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(spafdad)
+```
+
+# Introduction
+
+The spafdad package is used for aggregating spatial data based on
+given spatial resolutions. The package contains raster data of the
+Netherlands. For specific resolutions, these raster data contains cells
+which can be used for the aggregation.
+
+If the users provides a dataset, containing measurements and spatial
+coordinates using the Dutch 'Rijksdriehoekstelsel' (RD), these
+measurements can be aggregated for each cell in one of the raster data
+grids with selected resolution.
+
+By using the package a overview of the spatial variability a a certain
+measurement can be obtained without the need to provide the exact
+location. 
+
+For each cell distribution statistics can be calculated, such as the
+mean, median, standard deviation, etc. Also the amount observations in
+each cell can be calculated. 
+
+Based on the amount of observations in each cell, the user can decide
+what the minimal amount of observations is needed, to not disclose any
+individual information.
+
+# Installation
+
+The package can be installed from GitHub.com by using the following command:
+
+```{r eval = FALSE}
+devtools::install_github("jspijker/spafdad")
+```
+
+# Usage
+
+First, a datasets is needed with coordinates and measurements. The
+coordinates should be in the Dutch 'Rijksdriehoekstelsel' (RD) system.
+The measurements can be any type of numerical data, such as soil parameters. in
+the package, a (somewhat artificial) dataset is provided with lutum
+parameters. This dataset is used in this example.
+
+```{r}
+data("dclutum")
+head(dclutum)
+```
+
+To bind the cell numers to the dataset, the function `grid_cell` can
+be used. This function requires the dataset and the spatial resolution
+of the grid. The function returns the dataset with an extra column
+containing the cell numbers.
+
+If the dataset contains columns indicating date, year, addresses, LIMS
+number or other information, they will be kept in the dataset.
+
+```{r}
+x <- grid_cell(dclutum, 1000)
+head(x)
+```
+
+In the above example we use grid with a resolution of 1000 meters. The
+available resolutions are:
+
+```{r}
+get_resolutions()
+```
+
+The result of grid_cell can be used to aggregate the data. The
+function `aggregate_data` can be used for this. The function requires
+the dataset and the column name of the measurements.
+
+```{r}
+x_agg <- summary_cell(x, "lutum")
+head(x_agg)
+```
+
+In the above example the mean, median, standard deviation, and
+quantiles are calculated for each cell. At the moment, only the cell
+id can be used for the aggregation. If other factors are present in
+the dataset, they can't be used for the aggregation. For these
+parameters the data should be aggregated before using the function or
+multiple datasets can be created for each factor.
+
+The amount of observations in each cell is calculated. This amount can be
+used to filter out cells with a low amount of observations. Fort example,
+each must contain at least 5 observations.
+
+```{r}
+
+x_disc <- x_agg |>
+    dplyr::filter(n > 5)
+
+head(x_disc)
+```
