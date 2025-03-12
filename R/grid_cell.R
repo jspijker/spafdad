@@ -20,7 +20,8 @@
 #'
 #' @examples
 #'
-#' d <- dc_lutum
+#' data(dclutum)
+#' d <- dclutum
 #' grid_cell(d, 250)
 
 

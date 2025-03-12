@@ -29,6 +29,7 @@ determined by the cell number in the grid file.
 }
 \examples{
 
-d <- dc_lutum
+data(dclutum)
+d <- dclutum
 grid_cell(d, 250)
 }
